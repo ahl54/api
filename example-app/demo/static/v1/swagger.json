@@ -1,0 +1,212 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Etiometry QIS api",
+    "license": {
+      "name": "Not for distribution"
+    }
+  },
+  "basePath": "/v1",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/physio_objects/{measure_names}": {
+      "get": {
+        "summary": "Lists physio_data objects by measure name(s)",
+        "operationId": "list_physio_by_measure_name",
+        "tags": [
+          "physio"
+        ],
+        "parameters": [
+          {
+            "name": "measure_names",
+            "in": "path",
+            "required": true,
+            "description": "An array of measure names to filter",
+            "type": "array",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paged array of physio_data objects",
+            "headers": {
+              "x-next": {
+                "type": "string",
+                "description": "A link to the next page of responses"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/physio_objects"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/available_encounters/{time_tuple}": {
+      "get": {
+        "summary": "Retrieves patientIDs for encounters by availability. Availability is defined as the time overlap between physio start, stop times with encounter admit, discharge times.",
+        "operationId": "showpatientIDBytime",
+        "tags": [
+          "available_encounters"
+        ],
+        "parameters": [
+          {
+            "name": "time_tuple",
+            "in": "path",
+            "required": true,
+            "description": "A tuple (start_time, stop_time) of a physio_data object",
+            "type": "tuple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "schema": {
+              "$ref": "#/definitions/available_encounters"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/patient_mrns/{patientIDs}": {
+      "get": {
+        "summary": "Retrieves patient mrns by patientID",
+        "operationId": "showmrnsByPatientID",
+        "tags": [
+          "patientmrns"
+        ],
+        "parameters": [
+          {
+            "name": "patientIDs",
+            "in": "path",
+            "required": true,
+            "description": "An array of patientIDs",
+            "type": "array"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "schema": {
+              "$ref": "#/definitions/patient_mrns"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "physio_object": {
+      "required": [
+        "measure_name",
+        "start_time",
+        "stop_time"
+      ],
+      "properties": {
+        "measure_name": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string"
+        },
+        "stop_time": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "physio_objects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/physio_object"
+      }
+    },
+    "available_encounter": {
+      "required": [
+        "patientID",
+        "admitDate",
+        "dischargeDate"
+      ],
+      "properties": {
+        "patientID": {
+          "type": "string"
+        },
+        "admitDate": {
+          "type": "string"
+        },
+        "dischargeDate": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "available_encounters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/available_encounter"
+      }
+    },
+    "patient_mrn": {
+      "required": [
+        "mrn"
+      ],
+      "properties": {
+        "mrn": {
+          "type": "int64"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "patient_mrns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/patient_mrn"
+      }
+    },
+    "Error": {
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
